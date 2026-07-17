@@ -412,6 +412,10 @@
       <span class="regra-valor" id="payoutCapVal">$3.000</span>
     </div>
     <div class="linha-regra">
+      <span class="regra-nome">🛡️ Daily Loss Limit (máximo de perda/dia)</span>
+      <span class="regra-valor" id="dailyLossRowVal">Nenhum</span>
+    </div>
+    <div class="linha-regra">
       <span class="regra-nome">🛡️ Buffer / Minimum Balance (Daily only)</span>
       <span class="regra-valor" id="bufferVal">—</span>
     </div>
@@ -484,8 +488,8 @@
   </div>
   
   <footer>
-    🔹 <strong>Flex:</strong> A cada 5 Winning Days (lucro ≥ mínimo exigido), você pode sacar 50% do lucro total desde o último payout, limitado ao cap.<br>
-    🔹 <strong>Daily:</strong> Precisa ter saldo > buffer. O payout = mínimo entre (2× lucro do ciclo) e o cap da conta. Payout mínimo $250.<br>
+    🔹 <strong>Flex:</strong> A cada 5 Winning Days (lucro ≥ mínimo exigido), você pode sacar 50% do lucro total desde o último payout, limitado ao cap. Sem Daily Loss Limit.<br>
+    🔹 <strong>Daily:</strong> Precisa ter saldo > buffer. O payout = mínimo entre (2× lucro do ciclo) e o cap da conta. Payout mínimo $250. Possui Daily Loss Limit.<br>
     🔹 Ambos: Após o primeiro payout, você precisa de lucro líquido positivo no ciclo para novo saque.
   </footer>
 </div>
@@ -581,6 +585,7 @@
   const freqValSpan = document.getElementById('freqVal');
   const winningThresholdSpan = document.getElementById('winningThresholdVal');
   const payoutCapSpan = document.getElementById('payoutCapVal');
+  const dailyLossRowSpan = document.getElementById('dailyLossRowVal');
   const bufferValSpan = document.getElementById('bufferVal');
 
   let currentPlanRules = 'flex';
@@ -595,9 +600,11 @@
     freqValSpan.innerText = data.freq;
     if (currentPlanRules === 'flex') {
       winningThresholdSpan.innerText = `$${data.winningThreshold}`;
+      dailyLossRowSpan.innerText = 'Nenhum (sem limite diário)';
       bufferValSpan.innerText = '— (sem buffer)';
     } else {
       winningThresholdSpan.innerText = 'N/A (regra do buffer)';
+      dailyLossRowSpan.innerText = `$${data.dailyLoss} por dia`;
       bufferValSpan.innerText = `$${data.buffer} (saldo mínimo)`;
     }
     payoutCapSpan.innerText = `$${data.payoutCap}`;
