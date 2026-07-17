@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+  <title>Tradeify | Regras + Simulador Flex e Daily (25k a 150k)</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      font-family: system-ui, 'Segoe UI', 'Roboto', 'Inter', sans-serif;
+    }
+
+    body {
+      background: #0b0e17;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 24px 16px;
+      margin: 0;
+    }
+
+    .container {
+      max-width: 1300px;
+      width: 100%;
+      background: #11141f;
+      border-radius: 2rem;
+      box-shadow: 0 20px 35px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(66, 153, 225, 0.2);
+      padding: 1.8rem;
+    }
+
+    h1 {
+      font-size: 1.7rem;
+      font-weight: 700;
+      color: #eef2ff;
+      margin: 0 0 0.2rem 0;
+      letter-spacing: -0.3px;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: #cbd5e6;
+      margin: 1.5rem 0 0.8rem 0;
+      padding-bottom: 0.5rem;
+      border-bottom: 1px solid #25304d;
+    }
+
+    .badge-plataforma {
+      display: inline-block;
+      background: #1e2a4a;
+      border-radius: 40px;
+      padding: 4px 14px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      color: #90cdf4;
+      margin-bottom: 1rem;
+    }
+
+    .sub {
+      color: #8e9ab0;
+      border-left: 3px solid #3b82f6;
+      padding-left: 12px;
+      margin-bottom: 1rem;
+      font-size: 0.85rem;
+      font-weight: 450;
+    }
+
+    .toggle-planos {
+      display: flex;
+      gap: 12px;
+      background: #0a0d18;
+      border-radius: 60px;
+      padding: 4px;
+      width: fit-content;
+      margin-bottom: 24px;
+    }
+
+    .btn-plano {
+      padding: 8px 24px;
+      border-radius: 40px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      cursor: pointer;
+      transition: 0.2s;
+      background: transparent;
+      color: #8e9ab0;
+      border: none;
+    }
+
+    .btn-plano.ativo {
+      background: #2d3a60;
+      color: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    }
+
+    .grid-2col {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.2rem;
+      margin-bottom: 1.8rem;
+    }
+
+    .campo {
+      flex: 1;
+      min-width: 160px;
+    }
+
+    label {
+      display: block;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      color: #8e9bb0;
+      margin-bottom: 6px;
+    }
+
+    select, input {
+      width: 100%;
+      background: #0a0d18;
+      border: 1px solid #252b3f;
+      padding: 12px 14px;
+      border-radius: 20px;
+      color: white;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    select:focus, input:focus {
+      outline: none;
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59,130,246,0.3);
+    }
+
+    .info-card {
+      background: #0c0f1a;
+      border-radius: 1.5rem;
+      padding: 1rem 1.2rem;
+      margin: 1rem 0 1.2rem 0;
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .info-item {
+      flex: 1;
+    }
+
+    .info-label {
+      font-size: 0.7rem;
+      color: #7c88aa;
+    }
+
+    .info-value {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #f0f4ff;
+    }
+
+    .alerta {
+      background: rgba(245, 158, 11, 0.1);
+      border-left: 4px solid #f59e0b;
+      padding: 12px 16px;
+      border-radius: 18px;
+      margin: 16px 0;
+      font-size: 0.85rem;
+      color: #fcd34d;
+    }
+
+    .alerta-sucesso {
+      background: rgba(16, 185, 129, 0.1);
+      border-left: 4px solid #10b981;
+      color: #6ee7b7;
+    }
+
+    .alerta-erro {
+      background: rgba(239, 68, 68, 0.1);
+      border-left: 4px solid #ef4444;
+      color: #fca5a5;
+    }
+
+    .tabela-regras {
+      background: #0c0f19;
+      border-radius: 1.5rem;
+      overflow-x: auto;
+      margin: 20px 0 16px;
+    }
+
+    .linha-regra {
+      display: flex;
+      align-items: center;
+      padding: 12px 18px;
+      border-bottom: 1px solid #1b2135;
+      gap: 16px;
+      flex-wrap: wrap;
+      justify-content: space-between;
+    }
+
+    .linha-regra:last-child {
+      border-bottom: none;
+    }
+
+    .regra-nome {
+      min-width: 180px;
+      font-weight: 600;
+      color: #ccd6f0;
+    }
+
+    .regra-valor {
+      background: #1b2138;
+      padding: 6px 12px;
+      border-radius: 24px;
+      font-family: monospace;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #93c5fd;
+    }
+
+    .tabela-lucros {
+      background: #0c0f19;
+      border-radius: 1.5rem;
+      overflow-x: auto;
+      margin: 20px 0 16px;
+    }
+
+    .linha-titulo {
+      display: flex;
+      background: #141a28;
+      padding: 12px 18px;
+      font-weight: 600;
+      font-size: 0.8rem;
+      color: #b9c7e3;
+      border-bottom: 1px solid #232a3f;
+      gap: 16px;
+    }
+
+    .linha-dia {
+      display: flex;
+      align-items: center;
+      padding: 12px 18px;
+      border-bottom: 1px solid #1b2135;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .linha-dia:last-child {
+      border-bottom: none;
+    }
+
+    .col-dia {
+      min-width: 70px;
+      font-weight: 600;
+      color: #ccd6f0;
+    }
+
+    .col-input {
+      flex: 2;
+      min-width: 150px;
+    }
+
+    .col-input input {
+      background: #05070f;
+      border: 1px solid #2f3a60;
+      border-radius: 40px;
+      padding: 10px 14px;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+
+    .col-status {
+      flex: 2;
+      font-size: 0.85rem;
+      color: #93c5fd;
+    }
+
+    button {
+      background: #2d3a60;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 40px;
+      font-weight: 600;
+      color: white;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: 0.2s;
+      margin-top: 8px;
+    }
+
+    button:hover {
+      background: #3e4e7c;
+    }
+
+    .payout-card {
+      background: linear-gradient(135deg, #0f1622 0%, #0a0f1a 100%);
+      border-radius: 1.5rem;
+      padding: 1.2rem 1.5rem;
+      margin: 20px 0;
+      border: 1px solid #2a3450;
+    }
+
+    .payout-valor {
+      font-size: 2.2rem;
+      font-weight: 800;
+      color: #4ade80;
+    }
+
+    .payout-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      color: #8e9ab0;
+      letter-spacing: 1px;
+    }
+
+    footer {
+      font-size: 0.65rem;
+      text-align: center;
+      color: #5b6a8c;
+      margin-top: 24px;
+      border-top: 1px solid #1e253f;
+      padding-top: 16px;
+    }
+
+    .resumo-final {
+      background: #080c16;
+      border-radius: 1.2rem;
+      padding: 14px 18px;
+      margin-top: 18px;
+    }
+
+    .btn-group {
+      display: flex;
+      gap: 12px;
+      margin: 16px 0;
+      flex-wrap: wrap;
+    }
+
+    .btn-reset {
+      background: #3a2a4e;
+    }
+
+    .btn-reset:hover {
+      background: #4e3a6b;
+    }
+
+    .divider {
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #3b82f6, transparent);
+      margin: 2rem 0 1rem 0;
+    }
+
+    @media (max-width: 750px) {
+      .container { padding: 1.2rem; }
+      .linha-dia, .linha-regra { flex-direction: column; align-items: stretch; }
+      .linha-titulo { display: none; }
+      .col-input { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+  <h1>Tradeify Select</h1>
+  <div class="badge-plataforma">Contas financiadas de Futuros | 25k a 150k</div>
+  <div class="sub">📋 Regras oficiais + Simulador de payout para os planos <strong>Flex (5-Day)</strong> e <strong>Daily</strong></div>
+
+  <!-- SEÇÃO 1: TOGGLE E REGRAS ESTÁTICAS -->
+  <div class="toggle-planos">
+    <button id="btnFlex" class="btn-plano ativo">Select Flex (5 dias)</button>
+    <button id="btnDaily" class="btn-plano">Select Daily (diário)</button>
+  </div>
+
+  <div class="grid-2col">
+    <div class="campo">
+      <label>Tamanho da conta</label>
+      <select id="accountSizeRules">
+        <option value="25000">Conta de $25.000</option>
+        <option value="50000" selected>Conta de $50.000</option>
+        <option value="100000">Conta de $100.000</option>
+        <option value="150000">Conta de $150.000</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="info-card">
+    <div class="info-item">
+      <div class="info-label">Maximum Drawdown (EOD)</div>
+      <div class="info-value" id="maxDrawdownVal">$2.000</div>
+    </div>
+    <div class="info-item">
+      <div class="info-label">Daily Loss Limit</div>
+      <div class="info-value" id="dailyLossVal">Nenhum</div>
+    </div>
+    <div class="info-item">
+      <div class="info-label">Starting Contracts</div>
+      <div class="info-value" id="startingContractsVal">2 mini / 20 micro</div>
+    </div>
+  </div>
+
+  <div class="tabela-regras">
+    <div class="linha-regra">
+      <span class="regra-nome">📊 Payout Frequency</span>
+      <span class="regra-valor" id="freqVal">A cada 5 winning days</span>
+    </div>
+    <div class="linha-regra">
+      <span class="regra-nome">🏆 Winning Day Threshold (mínimo/dia)</span>
+      <span class="regra-valor" id="winningThresholdVal">$150</span>
+    </div>
+    <div class="linha-regra">
+      <span class="regra-nome">💰 Payout Cap (máximo por payout)</span>
+      <span class="regra-valor" id="payoutCapVal">$3.000</span>
+    </div>
+    <div class="linha-regra">
+      <span class="regra-nome">🛡️ Buffer / Minimum Balance (Daily only)</span>
+      <span class="regra-valor" id="bufferVal">—</span>
+    </div>
+    <div class="linha-regra">
+      <span class="regra-nome">📈 Profit Split</span>
+      <span class="regra-valor">90% Trader / 10% Tradeify</span>
+    </div>
+    <div class="linha-regra">
+      <span class="regra-nome">⚖️ Consistency Rule</span>
+      <span class="regra-valor">Nenhuma (sem regra de consistência %)</span>
+    </div>
+  </div>
+
+  <!-- DIVISOR -->
+  <div class="divider"></div>
+
+  <!-- SEÇÃO 2: SIMULADOR INTERATIVO -->
+  <h2>🎮 Simulador de Payout</h2>
+  <div class="sub">💡 Digite seus lucros diários reais abaixo. O sistema calcula quanto você pode sacar seguindo as regras do plano selecionado.</div>
+
+  <div class="toggle-planos" style="margin-bottom: 16px;">
+    <button id="simulBtnFlex" class="btn-plano ativo">Simular Flex</button>
+    <button id="simulBtnDaily" class="btn-plano">Simular Daily</button>
+  </div>
+
+  <div class="grid-2col">
+    <div class="campo">
+      <label>Tamanho da conta (simulação)</label>
+      <select id="accountSizeSim">
+        <option value="25000">Conta de $25.000</option>
+        <option value="50000" selected>Conta de $50.000</option>
+        <option value="100000">Conta de $100.000</option>
+        <option value="150000">Conta de $150.000</option>
+      </select>
+    </div>
+    <div class="campo">
+      <label>Último payout realizado (saldo após payout, 0 se nunca)</label>
+      <input type="number" id="lastPayoutBalance" placeholder="Ex: 51250" value="0" step="100">
+    </div>
+  </div>
+
+  <!-- Tabela de lucros diários -->
+  <div class="tabela-lucros">
+    <div class="linha-titulo">
+      <div class="col-dia">Dia</div>
+      <div class="col-input">Lucro do dia (USD)</div>
+      <div class="col-status">Status / Observação</div>
+    </div>
+    <div id="diasList"></div>
+  </div>
+
+  <div class="btn-group">
+    <button id="addDayBtn">➕ Adicionar dia</button>
+    <button id="removeDayBtn" class="btn-reset">➖ Remover último dia</button>
+    <button id="resetBtn" class="btn-reset">🔄 Resetar todos os lucros</button>
+  </div>
+
+  <!-- Card de payout -->
+  <div class="payout-card">
+    <div class="payout-label">💰 VALOR DISPONÍVEL PARA SACAR (se solicitar agora)</div>
+    <div class="payout-valor" id="availablePayout">$0</div>
+    <div id="payoutDetails" style="font-size: 0.8rem; color: #a0aec0; margin-top: 8px;"></div>
+  </div>
+
+  <div id="alertBox"></div>
+
+  <div class="resumo-final" id="resumoFinal">
+    <strong>📊 Resumo da simulação</strong><br>
+    <span id="resumoTexto">Selecione o plano e preencha seus lucros diários.</span>
+  </div>
+  
+  <footer>
+    🔹 <strong>Flex:</strong> A cada 5 Winning Days (lucro ≥ mínimo exigido), você pode sacar 50% do lucro total desde o último payout, limitado ao cap.<br>
+    🔹 <strong>Daily:</strong> Precisa ter saldo > buffer. O payout = mínimo entre (2× lucro do ciclo) e o cap da conta. Payout mínimo $250.<br>
+    🔹 Ambos: Após o primeiro payout, você precisa de lucro líquido positivo no ciclo para novo saque.
+  </footer>
+</div>
+
+<script>
+  // ==================== REGRAS COMPLETAS 25k, 50k, 100k, 150k ====================
+  const rulesStatic = {
+    flex: {
+      25000: {
+        maxDrawdown: 1000,
+        dailyLoss: 'None',
+        startingContracts: '1 mini / 10 micro',
+        winningThreshold: 100,
+        payoutCap: 1250,
+        buffer: null,
+        freq: 'A cada 5 winning days'
+      },
+      50000: {
+        maxDrawdown: 2000,
+        dailyLoss: 'None',
+        startingContracts: '2 mini / 20 micro',
+        winningThreshold: 150,
+        payoutCap: 3000,
+        buffer: null,
+        freq: 'A cada 5 winning days'
+      },
+      100000: {
+        maxDrawdown: 3000,
+        dailyLoss: 'None',
+        startingContracts: '3 mini / 30 micro',
+        winningThreshold: 200,
+        payoutCap: 4000,
+        buffer: null,
+        freq: 'A cada 5 winning days'
+      },
+      150000: {
+        maxDrawdown: 4500,
+        dailyLoss: 'None',
+        startingContracts: '3 mini / 30 micro',
+        winningThreshold: 250,
+        payoutCap: 5000,
+        buffer: null,
+        freq: 'A cada 5 winning days'
+      }
+    },
+    daily: {
+      25000: {
+        maxDrawdown: 1000,
+        dailyLoss: 500,
+        startingContracts: '1 mini / 10 micro',
+        winningThreshold: null,
+        payoutCap: 600,
+        buffer: 1100,
+        freq: 'Diária (com buffer e regra 2× lucro)'
+      },
+      50000: {
+        maxDrawdown: 2000,
+        dailyLoss: 1000,
+        startingContracts: '2 mini / 20 micro',
+        winningThreshold: null,
+        payoutCap: 1000,
+        buffer: 2100,
+        freq: 'Diária (com buffer e regra 2× lucro)'
+      },
+      100000: {
+        maxDrawdown: 2500,
+        dailyLoss: 1250,
+        startingContracts: '3 mini / 30 micro',
+        winningThreshold: null,
+        payoutCap: 1500,
+        buffer: 2600,
+        freq: 'Diária (com buffer e regra 2× lucro)'
+      },
+      150000: {
+        maxDrawdown: 3500,
+        dailyLoss: 1750,
+        startingContracts: '3 mini / 30 micro',
+        winningThreshold: null,
+        payoutCap: 2500,
+        buffer: 3600,
+        freq: 'Diária (com buffer e regra 2× lucro)'
+      }
+    }
+  };
+
+  // ==================== SEÇÃO 1: REGRAS ESTÁTICAS ====================
+  const btnFlex = document.getElementById('btnFlex');
+  const btnDaily = document.getElementById('btnDaily');
+  const accountSizeRules = document.getElementById('accountSizeRules');
+  const maxDrawdownSpan = document.getElementById('maxDrawdownVal');
+  const dailyLossSpan = document.getElementById('dailyLossVal');
+  const startingContractsSpan = document.getElementById('startingContractsVal');
+  const freqValSpan = document.getElementById('freqVal');
+  const winningThresholdSpan = document.getElementById('winningThresholdVal');
+  const payoutCapSpan = document.getElementById('payoutCapVal');
+  const bufferValSpan = document.getElementById('bufferVal');
+
+  let currentPlanRules = 'flex';
+
+  function updateStaticUI() {
+    const account = parseInt(accountSizeRules.value, 10);
+    const data = rulesStatic[currentPlanRules][account];
+    if (!data) return;
+    maxDrawdownSpan.innerText = `$${data.maxDrawdown}`;
+    dailyLossSpan.innerText = data.dailyLoss === 'None' ? 'Nenhum' : `$${data.dailyLoss}`;
+    startingContractsSpan.innerText = data.startingContracts;
+    freqValSpan.innerText = data.freq;
+    if (currentPlanRules === 'flex') {
+      winningThresholdSpan.innerText = `$${data.winningThreshold}`;
+      bufferValSpan.innerText = '— (sem buffer)';
+    } else {
+      winningThresholdSpan.innerText = 'N/A (regra do buffer)';
+      bufferValSpan.innerText = `$${data.buffer} (saldo mínimo)`;
+    }
+    payoutCapSpan.innerText = `$${data.payoutCap}`;
+  }
+
+  function setPlanRules(plan) {
+    currentPlanRules = plan;
+    if (plan === 'flex') {
+      btnFlex.classList.add('ativo');
+      btnDaily.classList.remove('ativo');
+    } else {
+      btnDaily.classList.add('ativo');
+      btnFlex.classList.remove('ativo');
+    }
+    updateStaticUI();
+  }
+
+  btnFlex.addEventListener('click', () => setPlanRules('flex'));
+  btnDaily.addEventListener('click', () => setPlanRules('daily'));
+  accountSizeRules.addEventListener('change', updateStaticUI);
+  setPlanRules('flex');
+
+  // ==================== SEÇÃO 2: SIMULADOR ====================
+  const simulBtnFlex = document.getElementById('simulBtnFlex');
+  const simulBtnDaily = document.getElementById('simulBtnDaily');
+  const accountSizeSim = document.getElementById('accountSizeSim');
+  const lastPayoutInput = document.getElementById('lastPayoutBalance');
+  const availablePayoutSpan = document.getElementById('availablePayout');
+  const payoutDetailsSpan = document.getElementById('payoutDetails');
+  const alertBox = document.getElementById('alertBox');
+  const resumoTexto = document.getElementById('resumoTexto');
+  const diasListDiv = document.getElementById('diasList');
+
+  let currentPlanSim = 'flex';
+  let dailyProfits = [null, null, null, null, null];
+
+  function getSimRules() {
+    const account = parseInt(accountSizeSim.value, 10);
+    return rulesStatic[currentPlanSim][account];
+  }
+
+  // Atualiza apenas os textos de status sem recriar os inputs
+  function updateStatusOnly() {
+    const rulesData = getSimRules();
+    const winningThreshold = rulesData.winningThreshold;
+    const dailyLossLimit = rulesData.dailyLoss;
+    
+    for (let i = 0; i < dailyProfits.length; i++) {
+      const profit = dailyProfits[i];
+      const statusSpan = document.getElementById(`status-${i}`);
+      if (!statusSpan) continue;
+      
+      let statusText = '';
+      if (profit !== null && !isNaN(profit) && profit !== 0) {
+        if (currentPlanSim === 'flex' && profit >= winningThreshold) {
+          statusText = `✅ Winning Day (≥ $${winningThreshold})`;
+        } else if (currentPlanSim === 'flex' && profit > 0 && profit < winningThreshold) {
+          statusText = `⚠️ Abaixo do mínimo ($${winningThreshold})`;
+        } else if (currentPlanSim === 'daily' && dailyLossLimit !== 'None' && profit < 0 && Math.abs(profit) > dailyLossLimit) {
+          statusText = `❌ Excedeu Daily Loss Limit ($${dailyLossLimit})`;
+        } else if (profit < 0) {
+          statusText = `📉 Dia negativo`;
+        } else if (profit > 0) {
+          statusText = `📈 Lucro positivo`;
+        }
+      } else if (profit !== null && profit === 0) {
+        statusText = `⚖️ Dia neutro`;
+      } else {
+        statusText = `⏳ Aguardando lucro`;
+      }
+      statusSpan.innerText = statusText;
+    }
+  }
+
+  // Atualiza o cálculo do payout
+  function updatePayoutCalculation() {
+    const rulesData = getSimRules();
+    const lastBalance = parseFloat(lastPayoutInput.value) || 0;
+    const isFirstPayout = (lastBalance === 0);
+    
+    const validProfits = dailyProfits.filter(p => p !== null && !isNaN(p) && p > 0);
+    const totalProfitCycle = validProfits.reduce((a, b) => a + b, 0);
+    
+    let winningDaysCount = 0;
+    if (currentPlanSim === 'flex' && rulesData.winningThreshold) {
+      const minWin = rulesData.winningThreshold;
+      winningDaysCount = dailyProfits.filter(p => p !== null && !isNaN(p) && p >= minWin).length;
+    }
+    
+    let breachedDailyLoss = false;
+    if (currentPlanSim === 'daily' && rulesData.dailyLoss !== 'None') {
+      const lossLimit = rulesData.dailyLoss;
+      for (let profit of dailyProfits) {
+        if (profit !== null && !isNaN(profit) && profit < 0 && Math.abs(profit) > lossLimit) {
+          breachedDailyLoss = true;
+          break;
+        }
+      }
+    }
+    
+    let available = 0;
+    let details = '';
+    let canPayout = true;
+    
+    if (currentPlanSim === 'flex') {
+      if (winningDaysCount >= 5) {
+        if (totalProfitCycle > 0) {
+          const maxWithdrawable = totalProfitCycle * 0.5;
+          const cap = rulesData.payoutCap;
+          available = Math.min(maxWithdrawable, cap);
+          details = `Lucro total: $${totalProfitCycle.toFixed(2)} → 50% = $${(totalProfitCycle*0.5).toFixed(2)}. Cap: $${cap}.`;
+          if (!isFirstPayout && totalProfitCycle <= 0) {
+            available = 0;
+            details = `Precisa de lucro positivo no ciclo. Lucro atual: $${totalProfitCycle.toFixed(2)}.`;
+            canPayout = false;
+          } else {
+            details += ` ✅ ${winningDaysCount}/5 Winning Days (mínimo $${rulesData.winningThreshold}/dia).`;
+          }
+        } else {
+          available = 0;
+          details = `Lucro total: $${totalProfitCycle.toFixed(2)}. Necessário lucro positivo.`;
+          canPayout = false;
+        }
+      } else {
+        available = 0;
+        details = `${winningDaysCount}/5 Winning Days (necessário 5 dias com ≥ $${rulesData.winningThreshold} cada).`;
+        canPayout = false;
+      }
+    } else {
+      const buffer = rulesData.buffer;
+      let startingBalance = lastBalance > 0 ? lastBalance : parseInt(accountSizeSim.value, 10);
+      const currentBalance = startingBalance + totalProfitCycle;
+      const aboveBuffer = currentBalance - buffer;
+      
+      if (breachedDailyLoss) {
+        available = 0;
+        details = `❌ Daily Loss Limit excedido (máx $${rulesData.dailyLoss}/dia).`;
+        canPayout = false;
+      } else if (currentBalance <= buffer) {
+        available = 0;
+        details = `Saldo: $${currentBalance.toFixed(2)} | Buffer: $${buffer}. Faltam $${(buffer - currentBalance).toFixed(2)}.`;
+        canPayout = false;
+      } else {
+        if (totalProfitCycle <= 0 && !isFirstPayout) {
+          available = 0;
+          details = `Lucro do ciclo: $${totalProfitCycle.toFixed(2)}. Necessário lucro positivo após 1º payout.`;
+          canPayout = false;
+        } else {
+          const maxByProfitRule = totalProfitCycle * 2;
+          const cap = rulesData.payoutCap;
+          let rawPayout = Math.min(maxByProfitRule, cap);
+          if (rawPayout < 250 && totalProfitCycle > 0) {
+            rawPayout = 0;
+            details = `Lucro ciclo ($${totalProfitCycle.toFixed(2)}) resulta em payout abaixo de $250. Continue acumulando.`;
+            canPayout = false;
+          } else {
+            rawPayout = Math.min(rawPayout, aboveBuffer);
+            available = Math.max(0, rawPayout);
+            details = `Saldo: $${currentBalance.toFixed(2)} | Buffer: $${buffer} | Acima: $${aboveBuffer.toFixed(2)}. Lucro ciclo: $${totalProfitCycle.toFixed(2)} → 2× = $${(totalProfitCycle*2).toFixed(2)}. Cap: $${cap}. Payout: $${available.toFixed(2)}.`;
+          }
+        }
+      }
+    }
+    
+    let alertHtml = '';
+    if (canPayout && available > 0) {
+      alertHtml = `<div class="alerta-sucesso">✅ Elegível para payout de $${available.toFixed(2)}!</div>`;
+    } else if (!canPayout && available === 0) {
+      alertHtml = `<div class="alerta">⚠️ Ainda não é possível solicitar payout. ${details}</div>`;
+    } else if (breachedDailyLoss) {
+      alertHtml = `<div class="alerta-erro">❌ Daily Loss Limit excedido!</div>`;
+    } else {
+      alertHtml = `<div class="alerta">📌 ${details}</div>`;
+    }
+    
+    alertBox.innerHTML = alertHtml;
+    resumoTexto.innerText = details;
+    availablePayoutSpan.innerText = `$${available.toFixed(2)}`;
+    payoutDetailsSpan.innerText = details;
+  }
+
+  // Função principal que atualiza tudo
+  function updateAll() {
+    updatePayoutCalculation();
+    updateStatusOnly();
+  }
+
+  // Criar a tabela inicial (apenas uma vez)
+  function createTable() {
+    const rulesData = getSimRules();
+    const winningThreshold = rulesData.winningThreshold;
+    const dailyLossLimit = rulesData.dailyLoss;
+    
+    let html = '';
+    for (let i = 0; i < dailyProfits.length; i++) {
+      const profit = dailyProfits[i];
+      const profitValue = (profit !== null && !isNaN(profit)) ? profit : '';
+      let statusText = '';
+      
+      if (profit !== null && !isNaN(profit) && profit !== 0) {
+        if (currentPlanSim === 'flex' && profit >= winningThreshold) {
+          statusText = `✅ Winning Day (≥ $${winningThreshold})`;
+        } else if (currentPlanSim === 'flex' && profit > 0 && profit < winningThreshold) {
+          statusText = `⚠️ Abaixo do mínimo ($${winningThreshold})`;
+        } else if (currentPlanSim === 'daily' && dailyLossLimit !== 'None' && profit < 0 && Math.abs(profit) > dailyLossLimit) {
+          statusText = `❌ Excedeu Daily Loss Limit ($${dailyLossLimit})`;
+        } else if (profit < 0) {
+          statusText = `📉 Dia negativo`;
+        } else if (profit > 0) {
+          statusText = `📈 Lucro positivo`;
+        }
+      } else if (profit !== null && profit === 0) {
+        statusText = `⚖️ Dia neutro`;
+      } else {
+        statusText = `⏳ Aguardando lucro`;
+      }
+      
+      html += `
+        <div class="linha-dia" data-dayindex="${i}">
+          <div class="col-dia">Dia ${i+1}</div>
+          <div class="col-input">
+            <input type="number" class="profit-input" data-idx="${i}" placeholder="Ex: 250" step="any" value="${profitValue}">
+          </div>
+          <div class="col-status" id="status-${i}">${statusText}</div>
+        </div>
+      `;
+    }
+    diasListDiv.innerHTML = html;
+    
+    // Vincular eventos dos inputs
+    document.querySelectorAll('.profit-input').forEach(input => {
+      const idx = parseInt(input.getAttribute('data-idx'), 10);
+      input.addEventListener('input', (e) => {
+        let val = parseFloat(e.target.value);
+        if (isNaN(val)) val = null;
+        dailyProfits[idx] = val;
+        updateAll();
+      });
+    });
+  }
+  
+  function addDay() { 
+    dailyProfits.push(null); 
+    createTable(); 
+    updateAll();
+  }
+  
+  function removeLastDay() { 
+    if (dailyProfits.length > 1) { 
+      dailyProfits.pop(); 
+      createTable(); 
+      updateAll();
+    } 
+  }
+  
+  function resetAllProfits() { 
+    dailyProfits = dailyProfits.map(() => null); 
+    // Atualizar os valores dos inputs
+    document.querySelectorAll('.profit-input').forEach((input, idx) => {
+      if (idx < dailyProfits.length) {
+        input.value = '';
+        dailyProfits[idx] = null;
+      }
+    });
+    updateAll();
+  }
+  
+  function setPlanSim(plan) {
+    currentPlanSim = plan;
+    if (plan === 'flex') {
+      simulBtnFlex.classList.add('ativo');
+      simulBtnDaily.classList.remove('ativo');
+    } else {
+      simulBtnDaily.classList.add('ativo');
+      simulBtnFlex.classList.remove('ativo');
+    }
+    createTable();
+    updateAll();
+  }
+  
+  simulBtnFlex.addEventListener('click', () => setPlanSim('flex'));
+  simulBtnDaily.addEventListener('click', () => setPlanSim('daily'));
+  accountSizeSim.addEventListener('change', () => {
+    createTable();
+    updateAll();
+  });
+  lastPayoutInput.addEventListener('input', () => updateAll());
+  document.getElementById('addDayBtn').addEventListener('click', addDay);
+  document.getElementById('removeDayBtn').addEventListener('click', removeLastDay);
+  document.getElementById('resetBtn').addEventListener('click', resetAllProfits);
+  
+  // Inicializar
+  setPlanSim('flex');
+</script>
+</body>
+</html>
